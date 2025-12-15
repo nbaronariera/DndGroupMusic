@@ -2,9 +2,20 @@
 
 [![es](https://img.shields.io/badge/lang-es-yellow.svg)](README.es.md)
 
-> Organize, download, and tag your music library automatically from a simple Markdown file.
+> Organize, download, and tag your music library automatically from a simple Markdown file. 
 
 This is a high-performance CLI tool written in **Rust**. It parses a `.md` file, creates a folder structure based on headers, downloads audio using `yt-dlp`, converts it to MP3, and applies ID3 metadata (Artist, Album, Custom Tags) automatically.
+
+## 🎲 Perfect for TTRPG Groups (DnD, Pathfinder)
+
+This project was designed with **collaborative soundtracks** in mind.
+
+Imagine this workflow for your DnD party:
+1.  Upload the `campaign_music.md` file to a **GitHub** repository (or shared drive).
+2.  Your players find an epic theme for their character or a specific mood.
+3.  They edit the file, add the link under the correct header, and saves the changes.
+4.  You (the DM) run the tool before the session.
+5.  **Result:** The new tracks appear magically on your computer, organized in folders and tagged, ready to play.
 
 ## 🚀 Quick Install
 
@@ -16,7 +27,7 @@ Download `MarkdownMusicDownloader_Win64.zip`.
 2. Inside, you will find the executable along with `yt-dlp` and `ffmpeg` pre-configured.
 3. Open a terminal in that folder and run:
 ```powershell
-   .\music-downloader.exe my_list.md
+   .\DnDGroupMusic.exe my_list.md
 ```
 No extra installation required.
 
@@ -30,7 +41,7 @@ sudo apt update && sudo apt install ffmpeg yt-dlp
 ```
 Grant permissions and run:
 ```Bash
-chmod +x music-downloader
+chmod +x DnDGroupMusic
 ./music-downloader my_list.md
 ```
 

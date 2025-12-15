@@ -1,9 +1,20 @@
-# 🎵 Dnd Group Music
+# 🎵 DnD Group Music
 [![en](https://img.shields.io/badge/lang-en-yellow.svg)](README.md)
 
 > Organiza, descarga y etiqueta tu biblioteca musical automáticamente a partir de un simple archivo Markdown.
 
 Esta herramienta CLI escrita en **Rust** lee un archivo `.md`, crea la estructura de carpetas automáticamente, descarga el audio con `yt-dlp`, convierte a MP3 y aplica metadatos ID3 (Artista, Álbum, Tags) en paralelo.
+
+## 🎲 Perfecto para Grupos de Rol (DnD, Pathfinder)
+
+Este proyecto nació con la idea de **compartir la selección de la música de tus partidas**.
+
+Imagina este flujo de trabajo para tu grupo de Dungeons & Dragons:
+1.  Subís el archivo `campaign_music.md` a un repositorio de **GitHub** (o una carpeta compartida).
+2.  Tus jugadores encuentran una canción épica para su personaje o para un momento triste.
+3.  Ellos editan el archivo, añaden el enlace bajo la sección correcta y lo guardan.
+4.  Tú (el DM) ejecutas el programa antes de la sesión.
+5.  **Resultado:** Las canciones nuevas aparecen mágicamente en tu ordenador, organizadas por carpetas, etiquetadas y listas para sonar.
 
 ## 🚀 Instalación Rápida
 
@@ -15,7 +26,7 @@ Descarga el archivo `MarkdownMusicDownloader_Win64.zip`.
 2. Dentro encontrarás el ejecutable junto con `yt-dlp` y `ffmpeg` ya configurados.
 3. Abre una terminal en esa carpeta y ejecuta:
 ```powershell
-   .\music-downloader.exe mi_lista.md
+   .\DnDGroupMusic.exe mi_lista.md
 ```
 No necesitas instalar nada extra.
 
@@ -29,7 +40,7 @@ Instala las dependencias (ffmpeg y yt-dlp) usando tu gestor de paquetes:
 ```
 Dale permisos y ejecuta:
 ```Bash
-  chmod +x music-downloader
+  chmod +x DnDGroupMusic
   ./music-downloader mi_lista.md
 ```
 

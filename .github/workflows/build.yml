@@ -8,7 +8,7 @@ permissions:
   contents: write
 
 env:
-  RUST_BINARY_NAME: DndGroupMusic
+  RUST_BINARY_NAME: DnDGroupMusic
 
 jobs:
   build-windows:
