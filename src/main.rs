@@ -1,5 +1,5 @@
-use id3::{TagLike, Version};
-use pulldown_cmark::{Event, Parser, Tag};
+use id3::{Tag, TagLike, Version};
+use pulldown_cmark::{Event, Parser, Tag as MdTag};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use regex::Regex;
 use std::{
@@ -39,7 +39,7 @@ fn main() -> anyhow::Result<()> {
 
     for event in parser {
         match event {
-            Event::Start(Tag::Heading {
+            Event::Start(MdTag::Heading {
                 level,
                 id: _,
                 classes: _,
@@ -52,7 +52,8 @@ fn main() -> anyhow::Result<()> {
                     while current_path.len() - 1 >= level as usize {
                         current_path.pop();
                     }
-                    current_path.push(text.to_string());
+                    let safe_text = text.replace("/", "-");
+                    current_path.push(safe_text);
 
                     let path = &current_path.join("/");
                     let dir = Path::new(path);
@@ -74,12 +75,45 @@ fn main() -> anyhow::Result<()> {
             _ => {}
         }
     }
+    let expanded_links = expand_urls(links);
 
-    download_music(links);
+    download_music(expanded_links);
 
     println!("\nFin!");
 
     Ok(())
+}
+
+fn expand_urls(links: Vec<MusicFile>) -> Vec<MusicFile> {
+    links
+        .par_iter()
+        .flat_map(|(url, path, tags)| {
+            println!("Analizando contenido de: {}", url);
+
+            let output = Command::new("yt-dlp")
+                .args(["--flat-playlist", "--print", "url", "--ignore-errors", &url])
+                .output();
+
+            let mut new_links = Vec::new();
+
+            match output {
+                Ok(out) => {
+                    let stdout = String::from_utf8_lossy(&out.stdout);
+                    for line in stdout.lines() {
+                        let single_url = line.trim();
+                        if !single_url.is_empty() {
+                            new_links.push((single_url.to_string(), path.clone(), tags.clone()));
+                        }
+                    }
+                }
+                Err(e) => {
+                    eprintln!("Error al expandir playlist {}: {}", url, e);
+                }
+            }
+
+            new_links
+        })
+        .collect()
 }
 
 fn download_music(links: Vec<MusicFile>) {
@@ -93,6 +127,7 @@ fn download_music(links: Vec<MusicFile>) {
             .args([
                 "--no-overwrites",
                 "-x",
+                "--no-simulate",
                 "--audio-format",
                 "mp3",
                 "-o",
@@ -103,25 +138,42 @@ fn download_music(links: Vec<MusicFile>) {
             ])
             .output()
             .expect("Expected command completion");
+        let stdout = String::from_utf8_lossy(&output.stdout);
 
-        let filename = String::from_utf8_lossy(&output.stdout).trim().to_string();
-        let file_path = PathBuf::from(filename);
+        for line in stdout.lines() {
+            let filename = line.trim();
+            if filename.is_empty() {
+                continue;
+            }
 
-        let mut tag = id3::Tag::new();
-        tag.set_artist(current_path.last().unwrap());
-        tag.set_album(&current_path.join(" - "));
-        tag.add_comment(id3::frame::Comment {
-            lang: "ES".to_owned(),
-            description: "Custom tags".to_owned(),
-            text: tags.join(", "),
-        });
+            let file_path = PathBuf::from(filename);
 
-        tag.write_to_path(&file_path, Version::Id3v24)
-            .expect("Expected writing in path");
+            if !file_path.exists() {
+                eprintln!("Advertencia: El archivo no existe: {}", filename);
+                continue;
+            }
 
-        println!(
-            "Se ha descargado {}, con path {} y tags {:?}",
-            url, path, tags
-        );
+            let mut tag = match Tag::read_from_path(&file_path) {
+                Ok(t) => t,
+                Err(_) => Tag::new(),
+            };
+
+            if let Some(artist) = current_path.last() {
+                tag.set_artist(artist);
+            }
+            tag.set_album(&current_path.join(" - "));
+
+            tag.add_frame(id3::frame::Comment {
+                lang: "spa".to_owned(),
+                description: "Tags".to_owned(),
+                text: tags.join(", "),
+            });
+
+            if let Err(e) = tag.write_to_path(&file_path, Version::Id3v24) {
+                eprintln!("Error escribiendo tags en {}: {}", filename, e);
+            } else {
+                println!("Tags aplicados a: {}", filename);
+            }
+        }
     });
 }
