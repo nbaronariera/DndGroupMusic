@@ -52,11 +52,11 @@ El archivo debe seguir esta estructura jerárquica:
 
 - Etiquetado ID3v2.4 Automático:
 
-    Artista: Nombre de la carpeta contenedora.
+- -  Artista: Nombre de la carpeta contenedora.
 
-    Álbum: Ruta relativa completa.
+- - Álbum: Ruta relativa completa.
 
-    Comentarios: Tags personalizados definidos en el Markdown.
+- - Comentarios: Tags personalizados definidos en el Markdown.
 
 ### 🛠️ Compilación Manual
 
@@ -69,4 +69,4 @@ cargo build --release
 ```
 
 ## 📄 Licencia
-Este proyecto está bajo la licencia MIT.
+Este proyecto está bajo la licencia GNU General Public License v3.0.

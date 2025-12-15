@@ -54,11 +54,11 @@ The input file must follow this hierarchical structure:
 
 - Automatic ID3v2.4 Tagging:
 
-    Artist: Extracted from the deepest folder name.
+- - Artist: Extracted from the deepest folder name.
 
-    Album: Full relative path.
+- - Album: Full relative path.
 
-    Comments: Custom tags defined in the Markdown file.
+- - Comments: Custom tags defined in the Markdown file.
 
 ### 🛠️ Manual Build
 
@@ -73,4 +73,4 @@ cargo build --release
 
 📄 License
 
-This project is licensed under the MIT License.
+This project is licensed under the GNU General Public License v3.0.

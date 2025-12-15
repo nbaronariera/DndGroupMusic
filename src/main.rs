@@ -14,7 +14,7 @@ fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
 
     if args.len() < 2 {
-        eprintln!("Uso: cargo run -- <archivo.md>");
+        eprintln!("Use: cargo run -- <file.md>");
         std::process::exit(1);
     }
 
@@ -31,9 +31,9 @@ fn main() -> anyhow::Result<()> {
 
     let re_list = Regex::new(
         r#"(?x)
-        (https?://[^\s,]+)     # grupo 1: URL (hasta la primera coma o espacio)
-        \s*,\s*                # separador coma con posibles espacios
-        (.+)                   # grupo 2: todo lo demás (las etiquetas)
+        (https?://[^\s,]+)     
+        \s*,\s*                
+        (.+)                   
         "#,
     )?;
 
@@ -86,8 +86,6 @@ fn expand_urls(links: Vec<MusicFile>) -> Vec<MusicFile> {
     links
         .par_iter()
         .flat_map(|(url, path, tags)| {
-            println!("Analizando contenido de: {}", url);
-
             let output = Command::new("yt-dlp")
                 .args(["--flat-playlist", "--print", "url", "--ignore-errors", url])
                 .output();
@@ -105,7 +103,7 @@ fn expand_urls(links: Vec<MusicFile>) -> Vec<MusicFile> {
                     }
                 }
                 Err(e) => {
-                    eprintln!("Error al expandir playlist {}: {}", url, e);
+                    eprintln!("Error al expanding playlist {}: {}", url, e);
                 }
             }
 
@@ -115,12 +113,12 @@ fn expand_urls(links: Vec<MusicFile>) -> Vec<MusicFile> {
 }
 
 fn download_music(links: Vec<MusicFile>) {
-    println!("Inciando descargas...");
+    println!("Starting downloads...");
 
     links.par_iter().for_each(|(url, current_path, tags)| {
         let path = current_path.join("/");
         let dir = Path::new(&path);
-        println!("Descargando {url} en {:?}", path);
+        println!("Dowloading {url} in {:?}", path);
         let output = Command::new("yt-dlp")
             .args([
                 "--no-overwrites",
@@ -147,7 +145,7 @@ fn download_music(links: Vec<MusicFile>) {
             let file_path = PathBuf::from(filename);
 
             if !file_path.exists() {
-                eprintln!("Advertencia: El archivo no existe: {}", filename);
+                eprintln!("Warning: file does not exists: {}", filename);
                 continue;
             }
 
@@ -168,9 +166,7 @@ fn download_music(links: Vec<MusicFile>) {
             });
 
             if let Err(e) = tag.write_to_path(&file_path, Version::Id3v24) {
-                eprintln!("Error escribiendo tags en {}: {}", filename, e);
-            } else {
-                println!("Tags aplicados a: {}", filename);
+                eprintln!("Error writing tags in {}: {}", filename, e);
             }
         }
     });
