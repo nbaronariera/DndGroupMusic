@@ -49,7 +49,7 @@ fn main() -> anyhow::Result<()> {
             }
             Event::Text(text) => {
                 if let Some(level) = current_heading_level.take() {
-                    while current_path.len() - 1 >= level as usize {
+                    while current_path.len() > level as usize {
                         current_path.pop();
                     }
                     let safe_text = text.replace("/", "-");
@@ -58,18 +58,16 @@ fn main() -> anyhow::Result<()> {
                     let path = &current_path.join("/");
                     let dir = Path::new(path);
                     fs::create_dir_all(dir)?;
-                } else {
-                    if let Some(caps) = re_list.captures(&text) {
-                        let url = caps.get(1).unwrap().as_str();
-                        let rest = caps.get(2).unwrap().as_str();
-                        let tags: Vec<String> = rest
-                            .split(',')
-                            .map(|s| s.trim().to_owned())
-                            .filter(|s| !s.is_empty())
-                            .collect();
+                } else if let Some(caps) = re_list.captures(&text) {
+                    let url = caps.get(1).unwrap().as_str();
+                    let rest = caps.get(2).unwrap().as_str();
+                    let tags: Vec<String> = rest
+                        .split(',')
+                        .map(|s| s.trim().to_owned())
+                        .filter(|s| !s.is_empty())
+                        .collect();
 
-                        links.push((url.to_owned(), current_path.clone(), tags));
-                    }
+                    links.push((url.to_owned(), current_path.clone(), tags));
                 }
             }
             _ => {}
@@ -91,7 +89,7 @@ fn expand_urls(links: Vec<MusicFile>) -> Vec<MusicFile> {
             println!("Analizando contenido de: {}", url);
 
             let output = Command::new("yt-dlp")
-                .args(["--flat-playlist", "--print", "url", "--ignore-errors", &url])
+                .args(["--flat-playlist", "--print", "url", "--ignore-errors", url])
                 .output();
 
             let mut new_links = Vec::new();
@@ -161,7 +159,7 @@ fn download_music(links: Vec<MusicFile>) {
             if let Some(artist) = current_path.last() {
                 tag.set_artist(artist);
             }
-            tag.set_album(&current_path.join(" - "));
+            tag.set_album(current_path.join(" - "));
 
             tag.add_frame(id3::frame::Comment {
                 lang: "spa".to_owned(),
